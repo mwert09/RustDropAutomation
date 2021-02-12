@@ -66,11 +66,9 @@ def count_down(count, current_streamer):
         os.system('cls')
         print(f"{str(current_streamer)} - {count_min}:{count_second}")
         if count > 0:
-            print("Hello")
             time.sleep(1)
             count -= 1
         elif count <= 0:
-            print("World")
             os.system("taskkill /f /im " + browserExe)
             os.remove("data.txt")
             stream_data[streamer_number][2] = " True\n"
