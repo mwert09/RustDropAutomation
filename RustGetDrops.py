@@ -5,10 +5,11 @@ import twitch
 import time
 
 url = 'http://twitch.tv'
-webbrowser.register('chrome', None, webbrowser.BackgroundBrowser("C://Program Files (x86)//Google//Chrome//Application//chrome.exe"))
+webbrowser.register('chrome', None,
+                    webbrowser.BackgroundBrowser("C://Program Files (x86)//Google//Chrome//Application//chrome.exe"))
 browserExe = "chrome.exe"
 stream_data = []
-WATCH_TIME = 70 #70 DAKIKA
+WATCH_TIME = 130
 current_streamer = ""
 streamer_number = -1
 helix = twitch.Helix('client-id', 'client-secret')
@@ -23,6 +24,7 @@ def first_check():
                 return True
     return False
 
+
 def print_status():
     with open('data.txt', 'r') as data:
         lines = data.readlines()
@@ -32,8 +34,7 @@ def print_status():
 
 def start_timer():
     global streamer_number
-    print(streamer_number)
-    if streamer_number == 8:
+    if streamer_number == 9:  
         should_watch = first_check()
         if not should_watch:
             print("You've got everything")
@@ -44,38 +45,41 @@ def start_timer():
             for streamer in stream_data:
                 current_streamer_data = f"{streamer[0]}-{streamer[1]}-{streamer[2]}"
                 data.write(current_streamer_data)
+        return
     streamer_number += 1
     current_streamer = stream_data[streamer_number][0]
-    if helix.user(current_streamer).is_live and stream_data[streamer_number][2] == " False\n" and helix.user(current_streamer).stream.game_id == rust_game_id:
+    if helix.user(current_streamer).is_live and stream_data[streamer_number][2] == " False\n" and helix.user(
+            current_streamer).stream.game_id == rust_game_id:
         current_url = f"{url}/{current_streamer}"
         webbrowser.get('chrome').open_new(current_url)
-        count_down(WATCH_TIME*60)
+        count_down(WATCH_TIME * 60, current_streamer)
     else:
         start_timer()
 
-def count_down(count):
-    global current_streamer
-    global streamer_number
-    current_streamer = stream_data[streamer_number][0]
-    count_min = math.floor(count / 60)
-    count_second = count % 60
-    if count_second < 10:
-        count_second = f"0{count_second}"
-    print(f"{str(current_streamer)} - {count_min}:{count_second}")
-    os.system('cls')
-    if count > 0:
-        time.sleep(1)
-        count_down(count - 1)
-    else:
-        os.system("taskkill /f /im " + browserExe)
-        os.remove("data.txt")
-        stream_data[streamer_number][2] = " True\n"
-        with open('data.txt', 'w') as data:
-            for streamer in stream_data:
-                current_streamer_data = f"{streamer[0]}-{streamer[1]}-{streamer[2]}"
-                data.write(current_streamer_data)
-        print_status()
-        start_timer()
+
+def count_down(count, current_streamer):
+    while count >= 0:
+        count_min = math.floor(count / 60)
+        count_second = count % 60
+        if count_second < 10:
+            count_second = f"0{count_second}"
+        os.system('cls')
+        print(f"{str(current_streamer)} - {count_min}:{count_second}")
+        if count > 0:
+            print("Hello")
+            time.sleep(1)
+            count -= 1
+        elif count <= 0:
+            print("World")
+            os.system("taskkill /f /im " + browserExe)
+            os.remove("data.txt")
+            stream_data[streamer_number][2] = " True\n"
+            with open('data.txt', 'w') as data:
+                for streamer in stream_data:
+                    current_streamer_data = f"{streamer[0]}-{streamer[1]}-{streamer[2]}"
+                    data.write(current_streamer_data)
+            print_status()
+            start_timer()
 
 
 with open('data.txt', 'r') as data:
@@ -90,4 +94,3 @@ if should_watch:
     start_timer()
 else:
     print("You've got everything")
-
